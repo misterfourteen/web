@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Tracking y Atribución — Mister Fourteen</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap');
+
+  :root {
+    --black: #0a0a0a;
+    --white: #fafafa;
+    --accent: #E8FF47;
+    --gray-light: #f2f2f2;
+    --gray-mid: #e0e0e0;
+    --gray-text: #666;
+    --border: #e8e8e8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--black);
+    color: var(--white);
+    padding: 56px 64px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.08;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 48px;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: 0.04em;
+    color: var(--white);
+  }
+
+  .logo span {
+    color: var(--accent);
+  }
+
+  .doc-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    text-align: right;
+  }
+
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 42px;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    max-width: 580px;
+    margin-bottom: 16px;
+  }
+
+  .header h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .header-sub {
+    font-size: 15px;
+    color: rgba(255,255,255,0.55);
+    font-weight: 300;
+    max-width: 480px;
+  }
+
+  /* MAIN CONTENT */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 64px;
+  }
+
+  section {
+    padding: 56px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  section:last-child {
+    border-bottom: none;
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gray-text);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+    line-height: 1.2;
+  }
+
+  p {
+    color: #333;
+    margin-bottom: 12px;
+    font-weight: 300;
+  }
+
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; color: var(--black); }
+
+  /* FLOW */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 28px;
+  }
+
+  .flow-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    position: relative;
+  }
+
+  .flow-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 40px;
+    bottom: -12px;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .flow-dot {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .flow-content {
+    padding: 8px 0 28px;
+  }
+
+  .flow-content h4 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+
+  .flow-content p {
+    font-size: 14px;
+    color: var(--gray-text);
+    margin: 0;
+  }
+
+  /* WHAT WE TRACK - Grid */
+  .track-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  .track-item {
+    background: var(--gray-light);
+    border-radius: 10px;
+    padding: 20px 24px;
+  }
+
+  .track-item.full {
+    grid-column: 1 / -1;
+  }
+
+  .track-icon {
+    font-size: 20px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .track-item h4 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .track-item p {
+    font-size: 13px;
+    color: var(--gray-text);
+    margin: 0;
+  }
+
+  /* PIPELINE */
+  .pipeline {
+    display: flex;
+    gap: 8px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+
+  .stage {
+    background: var(--gray-light);
+    border-radius: 8px;
+    padding: 14px 18px;
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+    position: relative;
+  }
+
+  .stage::after {
+    content: '→';
+    position: absolute;
+    right: -14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-mid);
+    font-size: 16px;
+    z-index: 1;
+  }
+
+  .stage:last-child::after { display: none; }
+
+  .stage.active {
+    background: var(--black);
+    color: var(--white);
+  }
+
+  .stage h5 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+  }
+
+  .stage p {
+    font-size: 10px;
+    color: inherit;
+    opacity: 0.55;
+    margin: 4px 0 0;
+    font-weight: 400;
+  }
+
+  /* SOURCES TABLE */
+  .sources {
+    margin-top: 28px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .sources-row {
+    display: grid;
+    grid-template-columns: 180px 1fr 100px;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sources-row:last-child { border-bottom: none; }
+
+  .sources-row.header-row {
+    background: var(--black);
+    color: var(--white);
+  }
+
+  .sources-cell {
+    padding: 14px 20px;
+    font-size: 13px;
+    border-right: 1px solid var(--border);
+  }
+
+  .sources-row.header-row .sources-cell {
+    border-right: 1px solid rgba(255,255,255,0.1);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+
+  .sources-cell:last-child { border-right: none; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .badge.full { background: #dcfce7; color: #166534; }
+  .badge.partial { background: #fef9c3; color: #854d0e; }
+  .badge.no { background: #fee2e2; color: #991b1b; }
+
+  /* INVESTMENT */
+  .investment-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 28px;
+  }
+
+  .inv-card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .inv-card.featured {
+    background: var(--black);
+    color: var(--white);
+    border-color: var(--black);
+  }
+
+  .inv-card .tag {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    opacity: 0.5;
+    display: block;
+  }
+
+  .inv-card .price {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 44px;
+    line-height: 1;
+    margin-bottom: 4px;
+    letter-spacing: -0.03em;
+  }
+
+  .inv-card .price-label {
+    font-size: 13px;
+    opacity: 0.5;
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  .inv-card ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .inv-card ul li {
+    font-size: 13px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    opacity: 0.8;
+    font-weight: 300;
+  }
+
+  .inv-card ul li::before {
+    content: '—';
+    opacity: 0.4;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .inv-card.featured ul li { opacity: 0.75; }
+
+  .inv-card .accent-dot {
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.15;
+  }
+
+  /* CLARIFICATIONS */
+  .clarifications {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 28px;
+  }
+
+  .clar-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 20px 24px;
+    background: var(--gray-light);
+    border-radius: 10px;
+  }
+
+  .clar-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .clar-item h4 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .clar-item p {
+    font-size: 13px;
+    color: var(--gray-text);
+    margin: 0;
+  }
+
+  /* ADD-ON */
+  .addon-card {
+    margin-top: 16px;
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: center;
+  }
+
+  .addon-badge {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--black);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  .addon-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  .addon-card p {
+    font-size: 13px;
+    color: var(--gray-text);
+    margin: 0 0 14px;
+  }
+
+  .addon-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .addon-metric {
+    background: var(--gray-light);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .addon-price {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .addon-price .price {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 36px;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .addon-price .price-label {
+    font-size: 12px;
+    color: var(--gray-text);
+  }
+
+  /* WHAT WE NEED */
+  .needs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 28px;
+  }
+
+  .need-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+  }
+
+  .need-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* FOOTER */
+  .footer {
+    background: var(--black);
+    color: var(--white);
+    padding: 40px 64px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: 0.04em;
+  }
+
+  .footer-logo span { color: var(--accent); }
+
+  .footer-info {
+    font-size: 13px;
+    color: rgba(255,255,255,0.4);
+    text-align: right;
+  }
+
+  /* PRINT */
+  @media print {
+    body { font-size: 13px; }
+    .header { padding: 40px 48px 36px; }
+    .header h1 { font-size: 34px; }
+    .container { padding: 0 48px; }
+    section { padding: 40px 0; }
+    .footer { padding: 32px 48px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="logo">MISTER<span>FOURTEEN</span></div>
+    <div class="doc-label">Propuesta de servicio<br>Sistema de Atribución y Tracking</div>
+  </div>
+  <h1>De anuncio a venta.<br><em>Sin suposiciones.</em></h1>
+  <p class="header-sub">Documentación del sistema de tracking y atribución para lanzamientos y campañas de captación.</p>
+</div>
+
+<!-- CONTENT -->
+<div class="container">
+
+  <!-- INTRO -->
+  <section>
+    <div class="section-label">El problema que resuelve</div>
+    <h2>Sabes cuánto gastas en Meta. No sabes qué anuncio convierte de verdad.</h2>
+    <p>La mayoría de negocios trabajan con una atribución que Meta calcula a su manera: con ventanas de 7 días, entre dispositivos, y sin cruzar los datos con lo que realmente ocurre en el proceso de venta.</p>
+    <p>Este sistema registra cada lead desde el momento en que hace clic en un anuncio hasta que compra, pasando por cada etapa del proceso: registro, grupo de WhatsApp, asistencia al webinar, conversación y cierre. <strong>Sin depender de lo que Meta te dice. Con tus propios datos.</strong></p>
+  </section>
+
+  <!-- CÓMO FUNCIONA -->
+  <section>
+    <div class="section-label">Cómo funciona</div>
+    <h2>El recorrido completo del lead, registrado en tiempo real.</h2>
+
+    <div class="flow">
+      <div class="flow-item">
+        <div class="flow-dot">1</div>
+        <div class="flow-content">
+          <h4>El lead hace clic en un anuncio</h4>
+          <p>El sistema captura automáticamente qué campaña, qué conjunto de anuncios y qué anuncio específico generó ese clic. También distingue si el lead es frío o viene de una audiencia de retargeting (seguidores, interacciones).</p>
+        </div>
+      </div>
+      <div class="flow-item">
+        <div class="flow-dot">2</div>
+        <div class="flow-content">
+          <h4>Se registra en la landing</h4>
+          <p>Al rellenar el formulario, sus datos (nombre, email, teléfono) se vinculan a los datos del anuncio. Si ya estaba en la base de datos de otro lanzamiento anterior, se detecta automáticamente y se crea un nuevo registro vinculado al existente, sin duplicados.</p>
+        </div>
+      </div>
+      <div class="flow-item">
+        <div class="flow-dot">3</div>
+        <div class="flow-content">
+          <h4>Hace clic para entrar al grupo de WhatsApp</h4>
+          <p>El botón de la página de gracias pasa por un enlace de seguimiento que registra exactamente qué leads activaron este paso y cuándo lo hicieron.</p>
+        </div>
+      </div>
+      <div class="flow-item">
+        <div class="flow-dot">4</div>
+        <div class="flow-content">
+          <h4>Asiste (o no) al webinar</h4>
+          <p>El sistema cruza automáticamente la lista de asistentes de Zoom con los leads registrados. Sabes exactamente quién apareció y quién no, vinculado al anuncio que lo trajo.</p>
+        </div>
+      </div>
+      <div class="flow-item">
+        <div class="flow-dot">5</div>
+        <div class="flow-content">
+          <h4>Venta cerrada</h4>
+          <p>Se registra el importe de la venta en el pipeline. A partir de ahí puedes calcular cuánto generó cada campaña, cada anuncio y cada tipo de audiencia de forma real.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUÉ SE REGISTRA -->
+  <section>
+    <div class="section-label">Datos capturados</div>
+    <h2>Todo en un sitio. Por cada lead. Por cada lanzamiento.</h2>
+
+    <div class="track-grid">
+      <div class="track-item">
+        <span class="track-icon">📡</span>
+        <h4>Atribución al anuncio</h4>
+        <p>Campaña, conjunto de anuncios y anuncio específico que generó el lead. Tipo de audiencia: frío o retargeting.</p>
+      </div>
+      <div class="track-item">
+        <span class="track-icon">👤</span>
+        <h4>Datos del lead</h4>
+        <p>Nombre, email, teléfono, fecha de registro, fuente de entrada (landing, Meta Lead Ad, ManyChat, orgánico).</p>
+      </div>
+      <div class="track-item">
+        <span class="track-icon">📲</span>
+        <h4>Comportamiento en el funnel</h4>
+        <p>Si fue al grupo de WhatsApp, si asistió al webinar, si hizo clic en el enlace de oferta tras el webinar.</p>
+      </div>
+      <div class="track-item">
+        <span class="track-icon">💶</span>
+        <h4>Resultado económico</h4>
+        <p>Importe de la venta cerrada, vinculado al anuncio de origen. ROAS real por campaña y por anuncio.</p>
+      </div>
+      <div class="track-item full">
+        <span class="track-icon">🔁</span>
+        <h4>Historial por persona</h4>
+        <p>Si alguien participa en varios lanzamientos, el sistema lo detecta y mantiene un historial completo: en qué lanzamientos estuvo, cuándo compró, de qué anuncio vino cada vez. No se pierde ningún dato y no se crean duplicados.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PIPELINE -->
+  <section>
+    <div class="section-label">Tu pipeline en GHL</div>
+    <h2>Una vista de Kanban que refleja la realidad de tu proceso de venta.</h2>
+    <p>Se configura un pipeline específico para lanzamientos en tu GoHighLevel. Cada lead entra en la etapa que le corresponde y avanza automáticamente en las partes que se pueden automatizar.</p>
+
+    <div class="pipeline">
+      <div class="stage">
+        <h5>Registrado</h5>
+        <p>Auto</p>
+      </div>
+      <div class="stage">
+        <h5>Fue al grupo WA</h5>
+        <p>Auto</p>
+      </div>
+      <div class="stage">
+        <h5>Asistió al webinar</h5>
+        <p>Auto</p>
+      </div>
+      <div class="stage">
+        <h5>No asistió</h5>
+        <p>Auto</p>
+      </div>
+      <div class="stage">
+        <h5>Lead caliente</h5>
+        <p>Auto / Manual</p>
+      </div>
+      <div class="stage active">
+        <h5>Vendido</h5>
+        <p>Manual</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FUENTES -->
+  <section>
+    <div class="section-label">Fuentes compatibles</div>
+    <h2>Funciona con todas las entradas habituales de leads.</h2>
+
+    <div class="sources">
+      <div class="sources-row header-row">
+        <div class="sources-cell">Fuente</div>
+        <div class="sources-cell">Datos disponibles</div>
+        <div class="sources-cell">Atribución</div>
+      </div>
+      <div class="sources-row">
+        <div class="sources-cell"><strong>Meta Lead Ads</strong></div>
+        <div class="sources-cell">Nombre, email, teléfono, campaña, ad set, anuncio</div>
+        <div class="sources-cell"><span class="badge full">Completa</span></div>
+      </div>
+      <div class="sources-row">
+        <div class="sources-cell"><strong>Landing page</strong></div>
+        <div class="sources-cell">Datos del form + campaña vía UTMs</div>
+        <div class="sources-cell"><span class="badge full">Completa</span></div>
+      </div>
+      <div class="sources-row">
+        <div class="sources-cell"><strong>ManyChat (anuncio)</strong></div>
+        <div class="sources-cell">Datos de perfil + campos del bot + campaña</div>
+        <div class="sources-cell"><span class="badge partial">Parcial</span></div>
+      </div>
+      <div class="sources-row">
+        <div class="sources-cell"><strong>Instagram orgánico</strong></div>
+        <div class="sources-cell">Datos de perfil + lo capturado en el bot</div>
+        <div class="sources-cell"><span class="badge no">Sin atribución</span></div>
+      </div>
+      <div class="sources-row">
+        <div class="sources-cell"><strong>WhatsApp directo</strong></div>
+        <div class="sources-cell">Lo que el lead facilita en la conversación</div>
+        <div class="sources-cell"><span class="badge no">Sin atribución</span></div>
+      </div>
+    </div>
+
+    <p style="margin-top: 16px; font-size: 13px; color: var(--gray-text);">La ausencia de atribución en fuentes orgánicas no es una limitación del sistema — es una limitación estructural de esos canales. Ninguna herramienta del mercado puede resolverlo porque WhatsApp e Instagram no exponen esa información.</p>
+  </section>
+
+  <!-- INVERSIÓN -->
+  <section>
+    <div class="section-label">Inversión</div>
+    <h2>Setup único. Funciona para todos tus lanzamientos.</h2>
+
+    <div class="investment-cards">
+      <div class="inv-card">
+        <span class="tag">Pago único</span>
+        <div class="price">1.500€</div>
+        <span class="price-label">Setup del sistema completo</span>
+        <ul>
+          <li>Configuración del pipeline en GHL con todos los campos</li>
+          <li>Integración con Meta Ads API para atribución real</li>
+          <li>Sistema de tracking del botón de WhatsApp</li>
+          <li>Integración con Zoom para registro de asistentes</li>
+          <li>Lógica de deduplicación de leads entre lanzamientos</li>
+          <li>Pruebas end-to-end del sistema completo</li>
+        </ul>
+      </div>
+      <div class="inv-card featured">
+        <div class="accent-dot"></div>
+        <span class="tag">Mensual</span>
+        <div class="price">200€</div>
+        <span class="price-label">Mantenimiento y operación</span>
+        <ul>
+          <li>Activación y configuración de cada nuevo lanzamiento o campaña</li>
+          <li>Hosting y mantenimiento de la infraestructura de automatización</li>
+          <li>Monitorización de que todos los flujos funcionan correctamente</li>
+          <li>Soporte ante cambios en landing, formularios o plataformas</li>
+          <li>Revisión de datos al cierre de cada lanzamiento</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="addon-card">
+      <div>
+        <span class="addon-badge">Add-on opcional</span>
+        <h3>Dashboard de ROAS automático</h3>
+        <p>Un panel accesible desde tu GHL que cruza el gasto real de Meta con las ventas registradas. Ves en tiempo real cuánto genera cada campaña, cada conjunto de anuncios y cada anuncio específico. Sin exportar nada, sin hacer cálculos manuales.</p>
+        <div class="addon-metrics">
+          <span class="addon-metric">Leads por anuncio</span>
+          <span class="addon-metric">Gasto real (Meta API)</span>
+          <span class="addon-metric">CPL real</span>
+          <span class="addon-metric">Ventas por anuncio</span>
+          <span class="addon-metric">ROAS por anuncio</span>
+          <span class="addon-metric">% asistencia webinar</span>
+        </div>
+      </div>
+      <div class="addon-price">
+        <div class="price">150€</div>
+        <div class="price-label">/ mes adicional</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- LO QUE NECESITAMOS -->
+  <section>
+    <div class="section-label">Para activarlo</div>
+    <h2>Lo que necesitamos de tu parte para empezar.</h2>
+
+    <div class="needs-list">
+      <div class="need-item">
+        <div class="need-num">1</div>
+        <span>Acceso de administrador a tu cuenta de GoHighLevel</span>
+      </div>
+      <div class="need-item">
+        <div class="need-num">2</div>
+        <span>Acceso al Meta Business Manager con el Ad Account activo</span>
+      </div>
+      <div class="need-item">
+        <div class="need-num">3</div>
+        <span>Cuenta de Zoom con acceso API (plan Pro o superior)</span>
+      </div>
+      <div class="need-item">
+        <div class="need-num">4</div>
+        <span>Acceso a la landing page para instalar el punto de captura de datos</span>
+      </div>
+      <div class="need-item">
+        <div class="need-num">5</div>
+        <span>Naming de campañas en Meta definido antes del lanzamiento (para que la atribución tenga sentido desde el primer día)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLARIFICACIONES -->
+  <section>
+    <div class="section-label">Transparencia</div>
+    <h2>Lo que es tuyo y lo que depende del servicio.</h2>
+
+    <div class="clarifications">
+      <div class="clar-item">
+        <div class="clar-icon">✅</div>
+        <div>
+          <h4>Tu GHL es tuyo</h4>
+          <p>La cuenta de GoHighLevel, el pipeline, los campos, los datos de todos los leads y el historial completo de lanzamientos te pertenecen. Sea cual sea la situación, esos datos no desaparecen.</p>
+        </div>
+      </div>
+      <div class="clar-item">
+        <div class="clar-icon">⚙️</div>
+        <div>
+          <h4>La automatización depende del servicio activo</h4>
+          <p>Los flujos de automatización (sincronización con Zoom, tracking del botón de WhatsApp, enriquecimiento con datos de Meta) funcionan mientras el servicio mensual está activo. Si en algún momento decides no continuarlo, te entregamos el enlace directo de WhatsApp para sustituirlo en tu landing sin que el botón deje de funcionar. El tracking se detiene, pero tu landing no se rompe.</p>
+        </div>
+      </div>
+      <div class="clar-item">
+        <div class="clar-icon">📊</div>
+        <div>
+          <h4>El ROAS lo calculamos juntos</h4>
+          <p>GHL registra de qué anuncio vino cada venta y el importe cerrado. El gasto por campaña lo consultamos en Meta Ads Manager. Con ambos datos el ROAS real por anuncio es inmediato. No necesitas herramientas adicionales.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-logo">MISTER<span>FOURTEEN</span></div>
+  <div class="footer-info">
+    misterfourteen.com<br>
+    Dúrcal, Granada
+  </div>
+</div>
+
+</body>
+</html>
